@@ -27,7 +27,7 @@ DEBUG = False
 
 
 ALLOWED_HOSTS = [
-    'inikoss.vercel.app',
+    'iniikosss.vercel.app',
     'localhost',
     '127.0.0.1',
 ]
