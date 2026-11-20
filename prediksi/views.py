@@ -31,25 +31,6 @@ def prediksi_harga_ribu(model_ml, jarak_val, rating_val, ac_num):
     return max(prediksi_ribu, 0.0)
 
 
-def buat_simulasi_harga(model_ml, jarak_val, rating_val, ac_num, prediksi_ribu):
-    """Memprediksi harga pada titik jarak referensi dengan fasilitas dan rating tetap."""
-    jarak_simulasi = sorted({0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, jarak_val})
-    titik_simulasi = []
-
-    for jarak in jarak_simulasi:
-        harga_ribu = (
-            prediksi_ribu
-            if jarak == jarak_val
-            else prediksi_harga_ribu(model_ml, jarak, rating_val, ac_num)
-        )
-        titik_simulasi.append({
-            "jarak_km": jarak,
-            "harga_rupiah": int(round(harga_ribu * 1000)),
-        })
-
-    return titik_simulasi
-
-
 def analisis_ai_lokal(jarak_val, ac_raw, rating_val, prediksi_rupiah, rata_pasar_rupiah, kategori):
     """Engine analisis lokal bawaan untuk menjelaskan kewajaran harga kos tanpa API key."""
     selisih = prediksi_rupiah - rata_pasar_rupiah
@@ -217,10 +198,6 @@ def index(request):
                     )
 
                     prediksi_rupiah = prediksi_ribu * 1000
-                    simulasi_payload = json.dumps(buat_simulasi_harga(
-                        model_ml, jarak_val, rating_val, ac_num, prediksi_ribu
-                    ))
-
                     # Klasifikasi segmen harga berdasarkan rata-rata pasar kos Madiun
                     if prediksi_ribu < 1000:
                         kategori = "Terjangkau"
@@ -280,7 +257,6 @@ def index(request):
                         "rating": rating_val,
                         "provider_ai": label_provider,
                         "analisis_ai": ulasan_ai,
-                        "simulasi_payload": simulasi_payload,
                     }
 
             except ValueError:

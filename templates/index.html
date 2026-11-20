@@ -653,81 +653,10 @@
             color: var(--text-main);
         }
 
-        .simulation-chart-wrap {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1.75 / 1;
-        }
-
-        .chart-card canvas,
-        .simulation-chart-wrap canvas {
+        .chart-card canvas {
             display: block;
             width: 100%;
             height: 220px;
-        }
-
-        .simulation-chart-wrap canvas {
-            height: 100%;
-        }
-
-        .simulation-frame {
-            grid-column: 1 / -1;
-        }
-
-        .simulation-frame-header {
-            margin-bottom: 18px;
-        }
-
-        .simulation-frame-header p {
-            margin-top: 5px;
-            color: var(--text-muted);
-            font-size: 0.86rem;
-        }
-
-        .simulation-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.8fr);
-            align-items: start;
-            gap: 24px;
-        }
-
-        .simulation-analysis {
-            padding: 6px 2px;
-        }
-
-        .simulation-analysis h4 {
-            margin-bottom: 12px;
-            color: var(--green);
-            font-size: 1rem;
-        }
-
-        .simulation-analysis-item {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .simulation-analysis-item:last-child {
-            border-bottom: 0;
-        }
-
-        .simulation-analysis-item strong {
-            display: block;
-            margin-bottom: 4px;
-            color: var(--text-main);
-            font-size: 0.82rem;
-        }
-
-        .simulation-analysis-item p,
-        .simulation-empty {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            line-height: 1.6;
-        }
-
-        @media (max-width: 980px) {
-            .simulation-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         @media (max-width: 600px) {
@@ -1298,18 +1227,6 @@
             color: var(--green);
         }
 
-        .simulation-frame-header p {
-            color: var(--muted);
-        }
-
-        .simulation-analysis-item p,
-        .simulation-empty {
-            color: var(--muted);
-        }
-
-        .simulation-analysis-item {
-            border-color: var(--border);
-        }
 
         .result-price-card {
             padding: 24px 18px;
@@ -1905,39 +1822,6 @@
                     {% endif %}
                 </div>
 
-                <section class="calculator-frame simulation-frame">
-                    <div class="simulation-frame-header">
-                        <h3 class="calc-frame-title">Analisis Simulasi</h3>
-                        <p>Perubahan estimasi harga berdasarkan jarak dan parameter kos yang dipilih.</p>
-                    </div>
-                    {% if hasil_prediksi %}
-                        <div class="simulation-grid">
-                            <div class="chart-card">
-                                <h3>Grafik Simulasi Perubahan Harga Kos</h3>
-                                <div class="simulation-chart-wrap">
-                                    <canvas id="simulasiHargaChart" role="img" aria-label="Grafik simulasi estimasi harga kos berdasarkan jarak ke kampus"></canvas>
-                                </div>
-                            </div>
-                            <div class="simulation-analysis" aria-live="polite">
-                                <h4>Analisis Grafik</h4>
-                                <div class="simulation-analysis-item">
-                                    <strong>Tren</strong>
-                                    <p id="simulationTrend"></p>
-                                </div>
-                                <div class="simulation-analysis-item">
-                                    <strong>Perubahan Harga</strong>
-                                    <p id="simulationPriceChange"></p>
-                                </div>
-                                <div class="simulation-analysis-item">
-                                    <strong>Kesimpulan</strong>
-                                    <p id="simulationConclusion"></p>
-                                </div>
-                            </div>
-                        </div>
-                    {% else %}
-                        <p class="simulation-empty">Grafik dan analisis akan tampil setelah kalkulasi berhasil.</p>
-                    {% endif %}
-                </section>
             </div>
         </section>
 
@@ -2282,6 +2166,21 @@
             const colors = ["#d97757", "#174e43"];
             const maxY = 1400;
 
+            function gambarBatangMelengkung(x, y, barWidth, barHeight, radius, color) {
+                const r = Math.min(radius, barWidth / 2, barHeight / 2);
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + barWidth - r, y);
+                ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + r);
+                ctx.lineTo(x + barWidth, y + barHeight);
+                ctx.lineTo(x, y + barHeight);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+            }
+
             ctx.clearRect(0, 0, width, height);
             ctx.font = "12px Segoe UI";
             ctx.fillStyle = "#6a7973";
@@ -2303,8 +2202,7 @@
                 const x = pad.left + slotWidth * index + (slotWidth - barWidth) / 2;
                 const barHeight = chartHeight * value / maxY;
                 const y = pad.top + chartHeight - barHeight;
-                ctx.fillStyle = colors[index];
-                ctx.fillRect(x, y, barWidth, barHeight);
+                gambarBatangMelengkung(x, y, barWidth, barHeight, 10, colors[index]);
                 ctx.fillStyle = "#192b26";
                 ctx.textAlign = "center";
                 ctx.font = "bold 12px Segoe UI";
@@ -2321,140 +2219,12 @@
         gambarScatter(document.getElementById("scatterTarifChart"));
         gambarBar(document.getElementById("barAcChart"));
 
-        {% if hasil_prediksi %}
-            const simulationData = {{ hasil_prediksi.simulasi_payload|safe }};
-            const selectedDistance = {{ hasil_prediksi.jarak_km }};
-            const selectedPointIndex = simulationData.findIndex(
-                point => point.jarak_km === selectedDistance
-            );
-            const formatRupiahChart = value => new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0
-            }).format(value);
-            const formatDistanceChart = value =>
-                `${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 }).format(value)} km`;
-
-            function gambarSimulasi() {
-                const canvas = document.getElementById("simulasiHargaChart");
-                const { ctx, width, height } = siapkanCanvas(canvas);
-                const pad = { left: 78, right: 18, top: 24, bottom: 48 };
-                const chartWidth = width - pad.left - pad.right;
-                const chartHeight = height - pad.top - pad.bottom;
-                const values = simulationData.map(point => point.harga_rupiah);
-                const minValue = Math.floor(Math.min(...values) / 100000) * 100000;
-                const maxValue = Math.ceil(Math.max(...values) / 100000) * 100000;
-                const minDistance = Math.min(...simulationData.map(point => point.jarak_km));
-                const maxDistance = Math.max(...simulationData.map(point => point.jarak_km));
-                const rangeValue = maxValue - minValue || 1;
-                const rangeDistance = maxDistance - minDistance || 1;
-                const x = point => pad.left + ((point.jarak_km - minDistance) / rangeDistance) * chartWidth;
-                const y = value => pad.top + chartHeight - ((value - minValue) / rangeValue) * chartHeight;
-
-                ctx.clearRect(0, 0, width, height);
-                ctx.font = "11px Segoe UI";
-                ctx.textAlign = "right";
-
-                for (let i = 0; i <= 5; i++) {
-                    const value = minValue + rangeValue * i / 5;
-                    const gridY = y(value);
-                    ctx.strokeStyle = "#e3e7df";
-                    ctx.beginPath();
-                    ctx.moveTo(pad.left, gridY);
-                    ctx.lineTo(pad.left + chartWidth, gridY);
-                    ctx.stroke();
-                    ctx.fillStyle = "#6a7973";
-                    ctx.fillText(formatRupiahChart(value), pad.left - 8, gridY + 4);
-                }
-
-                ctx.textAlign = "center";
-                ctx.fillStyle = "#192b26";
-                simulationData.forEach(point => {
-                    ctx.fillText(`${point.jarak_km} km`, x(point), height - 24);
-                });
-                ctx.fillText("Jarak ke Kampus (km)", pad.left + chartWidth / 2, height - 4);
-
-                ctx.beginPath();
-                simulationData.forEach((point, index) => {
-                    if (index === 0) ctx.moveTo(x(point), y(point.harga_rupiah));
-                    else ctx.lineTo(x(point), y(point.harga_rupiah));
-                });
-                ctx.lineTo(x(simulationData[simulationData.length - 1]), pad.top + chartHeight);
-                ctx.lineTo(x(simulationData[0]), pad.top + chartHeight);
-                ctx.closePath();
-                ctx.fillStyle = "rgba(23, 78, 67, 0.08)";
-                ctx.fill();
-
-                ctx.beginPath();
-                simulationData.forEach((point, index) => {
-                    if (index === 0) ctx.moveTo(x(point), y(point.harga_rupiah));
-                    else ctx.lineTo(x(point), y(point.harga_rupiah));
-                });
-                ctx.strokeStyle = "#174e43";
-                ctx.lineWidth = 3;
-                ctx.stroke();
-
-                simulationData.forEach((point, index) => {
-                    ctx.beginPath();
-                    ctx.arc(x(point), y(point.harga_rupiah), index === selectedPointIndex ? 8 : 4, 0, Math.PI * 2);
-                    ctx.fillStyle = index === selectedPointIndex ? "#c7e77e" : "#174e43";
-                    ctx.fill();
-                    ctx.strokeStyle = "#174e43";
-                    ctx.lineWidth = index === selectedPointIndex ? 2 : 1;
-                    ctx.stroke();
-                });
-            }
-
-            gambarSimulasi();
-
-            const startPoint = simulationData[0];
-            const endPoint = simulationData[simulationData.length - 1];
-            const priceChange = endPoint.harga_rupiah - startPoint.harga_rupiah;
-            const averageSimulationPrice = simulationData.reduce(
-                (total, point) => total + point.harga_rupiah, 0
-            ) / simulationData.length;
-            const stabilityThreshold = averageSimulationPrice * 0.01;
-            const trendPercent = averageSimulationPrice
-                ? Math.abs(priceChange) / averageSimulationPrice * 100
-                : 0;
-            let trendDescription;
-            let conclusion;
-
-            if (Math.abs(priceChange) <= stabilityThreshold) {
-                trendDescription =
-                    `Relatif Stabil — estimasi dari ${formatDistanceChart(startPoint.jarak_km)} hingga ${formatDistanceChart(endPoint.jarak_km)} berubah ${trendPercent.toFixed(1)}% dari rata-rata harga simulasi.`;
-                conclusion =
-                    "Pada rentang jarak simulasi ini, model memprediksi estimasi harga yang relatif stabil.";
-            } else if (priceChange < 0) {
-                trendDescription =
-                    `Tren Menurun — estimasi turun dari ${formatRupiahChart(startPoint.harga_rupiah)} pada ${formatDistanceChart(startPoint.jarak_km)} menjadi ${formatRupiahChart(endPoint.harga_rupiah)} pada ${formatDistanceChart(endPoint.jarak_km)}.`;
-                conclusion =
-                    "Pada rentang jarak simulasi ini, model memprediksi harga semakin rendah saat jarak kos bertambah.";
-            } else {
-                trendDescription =
-                    `Tren Meningkat — estimasi naik dari ${formatRupiahChart(startPoint.harga_rupiah)} pada ${formatDistanceChart(startPoint.jarak_km)} menjadi ${formatRupiahChart(endPoint.harga_rupiah)} pada ${formatDistanceChart(endPoint.jarak_km)}.`;
-                conclusion =
-                    "Pada rentang jarak simulasi ini, model memprediksi harga semakin tinggi saat jarak kos bertambah.";
-            }
-
-            const priceChangeDescription = priceChange < 0
-                ? `Turun sebesar ${formatRupiahChart(Math.abs(priceChange))}`
-                : priceChange > 0
-                    ? `Naik sebesar ${formatRupiahChart(priceChange)}`
-                    : "Tidak berubah";
-            document.getElementById("simulationTrend").textContent = trendDescription;
-            document.getElementById("simulationPriceChange").textContent =
-                `${priceChangeDescription}, dari ${formatRupiahChart(startPoint.harga_rupiah)} (${formatDistanceChart(startPoint.jarak_km)}) menjadi ${formatRupiahChart(endPoint.harga_rupiah)} (${formatDistanceChart(endPoint.jarak_km)}).`;
-            document.getElementById("simulationConclusion").textContent = conclusion;
-        {% endif %}
-
         let redrawTimer;
         window.addEventListener("resize", function () {
             clearTimeout(redrawTimer);
             redrawTimer = setTimeout(function () {
                 gambarScatter(document.getElementById("scatterTarifChart"));
                 gambarBar(document.getElementById("barAcChart"));
-                if (typeof gambarSimulasi === "function") gambarSimulasi();
             }, 150);
         });
 
