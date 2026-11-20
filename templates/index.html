@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IniKos — Temukan harga kos yang pas di Madiun</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --powder-blue: #c7e77e;
@@ -658,6 +657,17 @@
             position: relative;
             width: 100%;
             aspect-ratio: 1.75 / 1;
+        }
+
+        .chart-card canvas,
+        .simulation-chart-wrap canvas {
+            display: block;
+            width: 100%;
+            height: 220px;
+        }
+
+        .simulation-chart-wrap canvas {
+            height: 100%;
         }
 
         .simulation-frame {
@@ -2184,116 +2194,132 @@
             }
         });
 
-        // Render Grafik Interaktif Chart.js dari data kos_madiun.csv
+        // Render grafik menggunakan Canvas bawaan browser agar tidak bergantung pada CDN.
         const chartData = {{ chart_payload|safe }};
 
-        const acPoints = chartData.points
-            .filter(item => item.ac === "ya")
-            .map(item => ({ x: item.jarak_km, y: item.harga_ribu, nama: item.nama }));
+        function siapkanCanvas(canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const width = Math.max(rect.width, 300);
+            const height = Math.max(rect.height, 220);
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+            const ctx = canvas.getContext("2d");
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return { ctx, width, height };
+        }
 
-        const nonAcPoints = chartData.points
-            .filter(item => item.ac !== "ya")
-            .map(item => ({ x: item.jarak_km, y: item.harga_ribu, nama: item.nama }));
+        function gambarScatter(canvas) {
+            const { ctx, width, height } = siapkanCanvas(canvas);
+            const pad = { left: 62, right: 18, top: 18, bottom: 42 };
+            const chartWidth = width - pad.left - pad.right;
+            const chartHeight = height - pad.top - pad.bottom;
+            const points = chartData.points;
+            const maxX = Math.max(...points.map(item => item.jarak_km), 5);
+            const maxY = Math.max(...points.map(item => item.harga_ribu), 1400);
 
-        const ctxScatter = document.getElementById("scatterTarifChart").getContext("2d");
-        new Chart(ctxScatter, {
-            type: "scatter",
-            data: {
-                datasets: [
-                    {
-                        label: "Ber-AC (ya)",
-                        data: acPoints,
-                        backgroundColor: "#174e43",
-                        borderColor: "#174e43",
-                        borderWidth: 1,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    },
-                    {
-                        label: "Non-AC (tidak)",
-                        data: nonAcPoints,
-                        backgroundColor: "#d97757",
-                        borderColor: "#d97757",
-                        borderWidth: 1,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        labels: { color: "#192b26" }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                const pt = ctx.raw;
-                                return `${pt.nama}: ${pt.x} km — Rp ${pt.y} rb/bln`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: { display: true, text: "Jarak ke Kampus (km)", color: "#192b26" },
-                        ticks: { color: "#6a7973" },
-                        grid: { color: "#e3e7df" }
-                    },
-                    y: {
-                        title: { display: true, text: "Tarif Sewa (Ribu Rp / Bulan)", color: "#192b26" },
-                        ticks: { color: "#6a7973" },
-                        grid: { color: "#e3e7df" }
-                    }
-                }
+            ctx.clearRect(0, 0, width, height);
+            ctx.font = "12px Segoe UI";
+            ctx.fillStyle = "#6a7973";
+            ctx.strokeStyle = "#e3e7df";
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i <= 5; i++) {
+                const x = pad.left + chartWidth * i / 5;
+                const y = pad.top + chartHeight * i / 5;
+                ctx.beginPath();
+                ctx.moveTo(x, pad.top);
+                ctx.lineTo(x, pad.top + chartHeight);
+                ctx.stroke();
+                ctx.textAlign = "center";
+                ctx.fillText(((maxX / 5) * i).toFixed(1), x, height - 20);
+
+                ctx.beginPath();
+                ctx.moveTo(pad.left, y);
+                ctx.lineTo(pad.left + chartWidth, y);
+                ctx.stroke();
+                ctx.textAlign = "right";
+                ctx.fillText(String(Math.round(maxY - (maxY / 5) * i)), pad.left - 8, y + 4);
             }
-        });
 
-        const ctxBar = document.getElementById("barAcChart").getContext("2d");
-        new Chart(ctxBar, {
-            type: "bar",
-            data: {
-                labels: ["Non-AC (tidak)", "Ber-AC (ya)"],
-                datasets: [
-                    {
-                        label: "Rata-Rata Tarif (Ribu Rp / Bulan)",
-                        data: [chartData.rata_non_ac, chartData.rata_ac],
-                        backgroundColor: ["#d97757", "#174e43"],
-                        borderColor: ["#d97757", "#174e43"],
-                        borderWidth: 1,
-                        borderRadius: 8,
-                        barPercentage: 0.55
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                return `Rata-rata: Rp ${ctx.raw} rb/bulan`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: { color: "#192b26" },
-                        grid: { display: false }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        max: 1400,
-                        title: { display: true, text: "Ribu Rp / Bulan", color: "#192b26" },
-                        ticks: { color: "#6a7973" },
-                        grid: { color: "#e3e7df" }
-                    }
-                }
+            ctx.fillStyle = "#192b26";
+            ctx.textAlign = "center";
+            ctx.fillText("Jarak ke Kampus (km)", pad.left + chartWidth / 2, height - 3);
+            ctx.save();
+            ctx.translate(14, pad.top + chartHeight / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText("Tarif Sewa (Ribu Rp / Bulan)", 0, 0);
+            ctx.restore();
+
+            points.forEach(item => {
+                const x = pad.left + (item.jarak_km / maxX) * chartWidth;
+                const y = pad.top + chartHeight - (item.harga_ribu / maxY) * chartHeight;
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = item.ac === "ya" ? "#174e43" : "#d97757";
+                ctx.fill();
+            });
+
+            ctx.font = "12px Segoe UI";
+            ctx.fillStyle = "#174e43";
+            ctx.fillRect(pad.left, 8, 10, 10);
+            ctx.fillStyle = "#192b26";
+            ctx.textAlign = "left";
+            ctx.fillText("Ber-AC", pad.left + 14, 17);
+            ctx.fillStyle = "#d97757";
+            ctx.fillRect(pad.left + 78, 8, 10, 10);
+            ctx.fillStyle = "#192b26";
+            ctx.fillText("Non-AC", pad.left + 92, 17);
+        }
+
+        function gambarBar(canvas) {
+            const { ctx, width, height } = siapkanCanvas(canvas);
+            const pad = { left: 62, right: 18, top: 18, bottom: 42 };
+            const chartWidth = width - pad.left - pad.right;
+            const chartHeight = height - pad.top - pad.bottom;
+            const values = [chartData.rata_non_ac, chartData.rata_ac];
+            const labels = ["Non-AC", "Ber-AC"];
+            const colors = ["#d97757", "#174e43"];
+            const maxY = 1400;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.font = "12px Segoe UI";
+            ctx.fillStyle = "#6a7973";
+            ctx.textAlign = "right";
+
+            for (let i = 0; i <= 5; i++) {
+                const y = pad.top + chartHeight - chartHeight * i / 5;
+                ctx.strokeStyle = "#e3e7df";
+                ctx.beginPath();
+                ctx.moveTo(pad.left, y);
+                ctx.lineTo(pad.left + chartWidth, y);
+                ctx.stroke();
+                ctx.fillText(String(Math.round(maxY * i / 5)), pad.left - 8, y + 4);
             }
-        });
+
+            const slotWidth = chartWidth / 2;
+            values.forEach((value, index) => {
+                const barWidth = Math.min(slotWidth * 0.55, 110);
+                const x = pad.left + slotWidth * index + (slotWidth - barWidth) / 2;
+                const barHeight = chartHeight * value / maxY;
+                const y = pad.top + chartHeight - barHeight;
+                ctx.fillStyle = colors[index];
+                ctx.fillRect(x, y, barWidth, barHeight);
+                ctx.fillStyle = "#192b26";
+                ctx.textAlign = "center";
+                ctx.font = "bold 12px Segoe UI";
+                ctx.fillText(`Rp ${value} rb`, x + barWidth / 2, y - 8);
+                ctx.font = "12px Segoe UI";
+                ctx.fillText(labels[index], x + barWidth / 2, height - 20);
+            });
+
+            ctx.fillStyle = "#192b26";
+            ctx.textAlign = "center";
+            ctx.fillText("Rata-Rata Tarif (Ribu Rp / Bulan)", pad.left + chartWidth / 2, height - 3);
+        }
+
+        gambarScatter(document.getElementById("scatterTarifChart"));
+        gambarBar(document.getElementById("barAcChart"));
 
         {% if hasil_prediksi %}
             const simulationData = {{ hasil_prediksi.simulasi_payload|safe }};
@@ -2309,79 +2335,77 @@
             const formatDistanceChart = value =>
                 `${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 }).format(value)} km`;
 
-            new Chart(document.getElementById("simulasiHargaChart").getContext("2d"), {
-                type: "line",
-                data: {
-                    labels: simulationData.map(point => point.jarak_km),
-                    datasets: [
-                        {
-                            label: "Estimasi harga",
-                            data: simulationData.map(point => point.harga_rupiah),
-                            borderColor: "#174e43",
-                            backgroundColor: "rgba(23, 78, 67, 0.08)",
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            pointHoverRadius: 7,
-                            pointBackgroundColor: simulationData.map((point, index) =>
-                                index === selectedPointIndex ? "#c7e77e" : "#174e43"
-                            ),
-                            pointBorderColor: simulationData.map((point, index) =>
-                                index === selectedPointIndex ? "#174e43" : "#174e43"
-                            ),
-                            tension: 0.25,
-                            fill: true
-                        },
-                        {
-                            label: "Jarak pilihan Anda",
-                            data: simulationData.map((point, index) =>
-                                index === selectedPointIndex ? point.harga_rupiah : null
-                            ),
-                            showLine: false,
-                            borderColor: "#c7e77e",
-                            backgroundColor: "#c7e77e",
-                            pointBorderColor: "#174e43",
-                            pointBorderWidth: 2,
-                            pointRadius: 8,
-                            pointHoverRadius: 10
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { intersect: false, mode: "index" },
-                    plugins: {
-                        legend: {
-                            labels: { color: "#192b26" }
-                        },
-                        tooltip: {
-                            filter: item => item.raw !== null,
-                            callbacks: {
-                                title: items => `Jarak: ${items[0].label} km`,
-                                label: item => `${item.dataset.label}: ${formatRupiahChart(item.raw)}`
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: { display: true, text: "Jarak ke Kampus (km)", color: "#192b26" },
-                            ticks: {
-                                color: "#6a7973",
-                                callback: value => `${simulationData[value].jarak_km} km`
-                            },
-                            grid: { color: "#e3e7df" }
-                        },
-                        y: {
-                            title: { display: true, text: "Estimasi Harga per Bulan", color: "#192b26" },
-                            ticks: {
-                                color: "#6a7973",
-                                callback: value => formatRupiahChart(value)
-                            },
-                            grid: { color: "#e3e7df" }
-                        }
-                    }
+            function gambarSimulasi() {
+                const canvas = document.getElementById("simulasiHargaChart");
+                const { ctx, width, height } = siapkanCanvas(canvas);
+                const pad = { left: 78, right: 18, top: 24, bottom: 48 };
+                const chartWidth = width - pad.left - pad.right;
+                const chartHeight = height - pad.top - pad.bottom;
+                const values = simulationData.map(point => point.harga_rupiah);
+                const minValue = Math.floor(Math.min(...values) / 100000) * 100000;
+                const maxValue = Math.ceil(Math.max(...values) / 100000) * 100000;
+                const minDistance = Math.min(...simulationData.map(point => point.jarak_km));
+                const maxDistance = Math.max(...simulationData.map(point => point.jarak_km));
+                const rangeValue = maxValue - minValue || 1;
+                const rangeDistance = maxDistance - minDistance || 1;
+                const x = point => pad.left + ((point.jarak_km - minDistance) / rangeDistance) * chartWidth;
+                const y = value => pad.top + chartHeight - ((value - minValue) / rangeValue) * chartHeight;
+
+                ctx.clearRect(0, 0, width, height);
+                ctx.font = "11px Segoe UI";
+                ctx.textAlign = "right";
+
+                for (let i = 0; i <= 5; i++) {
+                    const value = minValue + rangeValue * i / 5;
+                    const gridY = y(value);
+                    ctx.strokeStyle = "#e3e7df";
+                    ctx.beginPath();
+                    ctx.moveTo(pad.left, gridY);
+                    ctx.lineTo(pad.left + chartWidth, gridY);
+                    ctx.stroke();
+                    ctx.fillStyle = "#6a7973";
+                    ctx.fillText(formatRupiahChart(value), pad.left - 8, gridY + 4);
                 }
-            });
+
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#192b26";
+                simulationData.forEach(point => {
+                    ctx.fillText(`${point.jarak_km} km`, x(point), height - 24);
+                });
+                ctx.fillText("Jarak ke Kampus (km)", pad.left + chartWidth / 2, height - 4);
+
+                ctx.beginPath();
+                simulationData.forEach((point, index) => {
+                    if (index === 0) ctx.moveTo(x(point), y(point.harga_rupiah));
+                    else ctx.lineTo(x(point), y(point.harga_rupiah));
+                });
+                ctx.lineTo(x(simulationData[simulationData.length - 1]), pad.top + chartHeight);
+                ctx.lineTo(x(simulationData[0]), pad.top + chartHeight);
+                ctx.closePath();
+                ctx.fillStyle = "rgba(23, 78, 67, 0.08)";
+                ctx.fill();
+
+                ctx.beginPath();
+                simulationData.forEach((point, index) => {
+                    if (index === 0) ctx.moveTo(x(point), y(point.harga_rupiah));
+                    else ctx.lineTo(x(point), y(point.harga_rupiah));
+                });
+                ctx.strokeStyle = "#174e43";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                simulationData.forEach((point, index) => {
+                    ctx.beginPath();
+                    ctx.arc(x(point), y(point.harga_rupiah), index === selectedPointIndex ? 8 : 4, 0, Math.PI * 2);
+                    ctx.fillStyle = index === selectedPointIndex ? "#c7e77e" : "#174e43";
+                    ctx.fill();
+                    ctx.strokeStyle = "#174e43";
+                    ctx.lineWidth = index === selectedPointIndex ? 2 : 1;
+                    ctx.stroke();
+                });
+            }
+
+            gambarSimulasi();
 
             const startPoint = simulationData[0];
             const endPoint = simulationData[simulationData.length - 1];
@@ -2424,7 +2448,17 @@
             document.getElementById("simulationConclusion").textContent = conclusion;
         {% endif %}
 
-        // Kembalikan posisi scroll setelah Chart.js selesai dirender
+        let redrawTimer;
+        window.addEventListener("resize", function () {
+            clearTimeout(redrawTimer);
+            redrawTimer = setTimeout(function () {
+                gambarScatter(document.getElementById("scatterTarifChart"));
+                gambarBar(document.getElementById("barAcChart"));
+                if (typeof gambarSimulasi === "function") gambarSimulasi();
+            }, 150);
+        });
+
+        // Kembalikan posisi scroll setelah grafik selesai dirender
         window.addEventListener("load", function () {
             const savedScrollY = sessionStorage.getItem("hitungkos_scroll_y");
             if (savedScrollY !== null) {
