@@ -1,0 +1,2437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IniKos — Temukan harga kos yang pas di Madiun</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --powder-blue: #c7e77e;
+            --powder-blue-soft: #edf4e5;
+            --burgundy: #174e43;
+            --burgundy-dark: #103c34;
+            --burgundy-soft: #e8f1ec;
+            --dusty-rose: #d97757;
+            --dusty-rose-soft: #fbede7;
+            --bg-page: #f5f4ee;
+            --bg-card: #fffefa;
+            --text-main: #192b26;
+            --text-muted: #6a7973;
+            --border: #e3e7df;
+            --danger: #a13e37;
+            --danger-soft: #fff0ed;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+        }
+
+        .nav-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--burgundy);
+            letter-spacing: -0.3px;
+        }
+
+        .brand-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .nav-pills {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--powder-blue-soft);
+            padding: 5px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .nav-pills a, .nav-btn-ai {
+            text-decoration: none;
+            color: var(--burgundy);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-pills a:hover, .nav-btn-ai:hover {
+            background: rgba(165, 166, 213, 0.45);
+        }
+
+        .nav-pills a.active {
+            background: var(--burgundy);
+            color: #FFFFFF;
+        }
+
+        .nav-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--dusty-rose-soft);
+            color: var(--burgundy);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--dusty-rose);
+        }
+
+        .dot-live {
+            width: 8px;
+            height: 8px;
+            background: var(--dusty-rose);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Dropdown API AI */
+        .ai-dropdown-wrapper {
+            position: relative;
+        }
+
+        .ai-popover {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 44px;
+            width: 320px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 12px 32px rgba(41, 47, 94, 0.14);
+            z-index: 200;
+        }
+
+        .ai-popover.open {
+            display: block;
+        }
+
+        .ai-popover h4 {
+            font-size: 0.98rem;
+            margin-bottom: 4px;
+            color: var(--burgundy);
+        }
+
+        .ai-popover p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 24px 16px 48px;
+        }
+
+        /* Hero Banner */
+        .hero {
+            background: linear-gradient(135deg, var(--burgundy-dark), var(--burgundy));
+            color: #FFFFFF;
+            border-radius: 20px;
+            padding: 36px;
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 28px;
+            align-items: center;
+            margin-bottom: 22px;
+            box-shadow: 0 10px 28px rgba(52, 59, 112, 0.18);
+            scroll-margin-top: 84px;
+        }
+
+        @media (max-width: 840px) {
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 26px;
+            }
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(165, 166, 213, 0.18);
+            color: var(--powder-blue);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(165, 166, 213, 0.35);
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-size: 2.15rem;
+            line-height: 1.2;
+            margin-bottom: 14px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .hero p {
+            font-size: 0.95rem;
+            color: #F4F5FA;
+            margin-bottom: 22px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero-primary {
+            background: var(--powder-blue);
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.92rem;
+            padding: 11px 20px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-hero-primary:hover {
+            background: #BFC0E2;
+        }
+
+        .btn-hero-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.92rem;
+            padding: 11px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(165, 166, 213, 0.35);
+            transition: background 0.2s;
+        }
+
+        .btn-hero-secondary:hover {
+            background: rgba(165, 166, 213, 0.2);
+        }
+
+        .hero-stat-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(165, 166, 213, 0.28);
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .hero-stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .hero-stat-label {
+            font-size: 0.78rem;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--powder-blue);
+            font-weight: 700;
+        }
+
+        .pill-patokan {
+            background: rgba(98, 107, 168, 0.28);
+            color: #FFFFFF;
+            border: 1px solid rgba(98, 107, 168, 0.5);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+
+        .hero-price-big {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 4px 0;
+            color: #FFFFFF;
+        }
+
+        .hero-price-sub {
+            font-size: 0.82rem;
+            color: #E2E5EF;
+            margin-bottom: 16px;
+        }
+
+        .hero-minmax {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .minmax-item {
+            background: rgba(41, 47, 94, 0.35);
+            border: 1px solid rgba(165, 166, 213, 0.18);
+            padding: 10px 12px;
+            border-radius: 10px;
+        }
+
+        .minmax-item span {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--powder-blue);
+        }
+
+        .minmax-item strong {
+            font-size: 0.98rem;
+            color: #FFFFFF;
+        }
+
+        /* 4 KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 26px;
+        }
+
+        @media (max-width: 840px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+        }
+
+        .kpi-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--burgundy);
+            margin: 4px 0 2px;
+        }
+
+        .kpi-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Section Cards */
+        .section-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 26px;
+            margin-bottom: 24px;
+            scroll-margin-top: 84px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .section-eyebrow {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--dusty-rose);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 2px;
+        }
+
+        .section-header h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .section-header p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        /* Calculator Grid */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        @media (max-width: 840px) {
+            .calc-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .calculator-frame {
+            min-width: 0;
+            padding: 24px;
+            background: #fffefa;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+        }
+
+        .calc-frame-title {
+            margin-bottom: 16px;
+            color: var(--green);
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .calc-settings-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0 12px;
+        }
+
+        .calc-settings-form .form-group {
+            min-width: 0;
+            margin-bottom: 12px;
+        }
+
+        .calc-settings-form .form-group:last-of-type,
+        .calc-settings-form .btn-primary {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background: var(--bg-card);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--powder-blue);
+            box-shadow: 0 0 0 3px rgba(165, 166, 213, 0.35);
+        }
+
+        .form-hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--burgundy);
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--burgundy-dark);
+        }
+
+        .btn-danger-sm {
+            background: var(--powder-blue-soft);
+            color: var(--burgundy);
+            border: 1px solid var(--powder-blue);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-danger-sm:hover {
+            background: var(--powder-blue);
+            color: var(--text-main);
+        }
+
+        /* Result & AI Panel */
+        .result-panel {
+            min-width: 0;
+        }
+
+        .result-price-card {
+            background: linear-gradient(135deg, var(--burgundy-soft), var(--powder-blue-soft));
+            border: 1.5px solid var(--powder-blue);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .result-price-card .lbl {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--burgundy);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .result-price-card .val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--burgundy);
+            margin: 4px 0;
+        }
+
+        .result-meta {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .badge-segmen {
+            display: inline-block;
+            background: var(--burgundy);
+            color: #FFFFFF;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+
+        .ai-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--dusty-rose);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .ai-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 8px;
+        }
+
+        .ai-box-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--burgundy);
+        }
+
+        .ai-provider-pill {
+            font-size: 0.74rem;
+            background: var(--powder-blue-soft);
+            color: var(--burgundy);
+            border: 1px solid var(--powder-blue);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .ai-box p {
+            font-size: 0.88rem;
+            color: var(--text-main);
+        }
+
+        .alert-error {
+            background: var(--danger-soft);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            margin-bottom: 14px;
+        }
+
+        .alert-toast {
+            background: var(--powder-blue-soft);
+            border: 1px solid var(--powder-blue);
+            color: var(--burgundy);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 840px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .chart-card h3 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .simulation-chart-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1.75 / 1;
+        }
+
+        .simulation-frame {
+            grid-column: 1 / -1;
+        }
+
+        .simulation-frame-header {
+            margin-bottom: 18px;
+        }
+
+        .simulation-frame-header p {
+            margin-top: 5px;
+            color: var(--text-muted);
+            font-size: 0.86rem;
+        }
+
+        .simulation-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.8fr);
+            align-items: start;
+            gap: 24px;
+        }
+
+        .simulation-analysis {
+            padding: 6px 2px;
+        }
+
+        .simulation-analysis h4 {
+            margin-bottom: 12px;
+            color: var(--green);
+            font-size: 1rem;
+        }
+
+        .simulation-analysis-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .simulation-analysis-item:last-child {
+            border-bottom: 0;
+        }
+
+        .simulation-analysis-item strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text-main);
+            font-size: 0.82rem;
+        }
+
+        .simulation-analysis-item p,
+        .simulation-empty {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 980px) {
+            .simulation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .calc-settings-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tables */
+        .table-wrap {
+            overflow-x: auto;
+            max-height: 360px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            background: var(--bg-card);
+        }
+
+        th, td {
+            padding: 11px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr {
+            background: var(--bg-card);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-page);
+        }
+
+        th {
+            background: var(--powder-blue-soft);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            color: var(--burgundy);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .pill-ac {
+            background: var(--powder-blue-soft);
+            color: var(--text-main);
+            border: 1px solid var(--powder-blue);
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .pill-nonac {
+            background: var(--dusty-rose-soft);
+            color: var(--burgundy);
+            border: 1px solid var(--dusty-rose);
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .model-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .info-box h4 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: var(--burgundy);
+        }
+
+        .info-box ul {
+            padding-left: 18px;
+            font-size: 0.86rem;
+            color: var(--text-main);
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            padding-top: 12px;
+        }
+
+        /* IniKos visual system */
+        :root {
+            --ink: #192b26;
+            --green: #174e43;
+            --lime: #c7e77e;
+            --paper: #f5f4ee;
+            --muted: #6a7973;
+            --coral: #d97757;
+            --shadow-card: 0 18px 48px rgba(25, 43, 38, 0.07);
+        }
+
+        html {
+            scroll-padding-top: 100px;
+        }
+
+        body {
+            background:
+                radial-gradient(ellipse at 92% 10%, rgba(199, 231, 126, 0.16), transparent 28rem),
+                var(--paper);
+            color: var(--ink);
+            font-family: "Aptos", "Segoe UI", sans-serif;
+            line-height: 1.65;
+        }
+
+        .navbar {
+            padding: 14px 28px;
+            background: rgba(255, 254, 250, 0.94);
+            border-bottom: 1px solid rgba(25, 43, 38, 0.1);
+            box-shadow: 0 4px 24px rgba(25, 43, 38, 0.035);
+        }
+
+        .nav-inner {
+            max-width: 1240px;
+            flex-wrap: nowrap;
+            gap: 24px;
+        }
+
+        .brand {
+            flex-direction: row;
+            align-items: center;
+            gap: 11px;
+            flex-shrink: 0;
+        }
+
+        .brand::before {
+            content: "i";
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px 14px 14px 4px;
+            background: var(--green);
+            color: var(--lime);
+            font-family: Georgia, serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .brand-title {
+            color: var(--green);
+            font-size: 1.32rem;
+            letter-spacing: -0.8px;
+            line-height: 1.15;
+        }
+
+        .brand-sub {
+            font-size: 0.69rem;
+            letter-spacing: 0.01em;
+        }
+
+        .nav-pills {
+            gap: 2px;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            flex-wrap: nowrap;
+        }
+
+        .nav-pills a,
+        .nav-btn-ai {
+            color: var(--muted);
+            font-size: 0.81rem;
+            padding: 9px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        .nav-pills a:hover,
+        .nav-btn-ai:hover {
+            background: var(--powder-blue-soft);
+            color: var(--green);
+        }
+
+        .nav-pills a.active {
+            background: transparent;
+            color: var(--green);
+            box-shadow: inset 0 -2px 0 var(--green);
+        }
+
+        .nav-badge {
+            background: var(--green);
+            color: #fffefa;
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 11px;
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+
+        .dot-live {
+            background: var(--lime);
+        }
+
+        .ai-popover {
+            top: 48px;
+            width: min(340px, calc(100vw - 32px));
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 22px 60px rgba(25, 43, 38, 0.17);
+        }
+
+        .container {
+            max-width: 1240px;
+            padding: 38px 28px 64px;
+        }
+
+        .alert-toast {
+            background: var(--powder-blue-soft);
+            border: 1px solid #d6e6c1;
+            color: var(--green);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            min-height: 390px;
+            grid-template-columns: minmax(0, 1.35fr) minmax(310px, 0.75fr);
+            gap: 48px;
+            padding: clamp(32px, 5vw, 66px);
+            margin-bottom: 22px;
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 84% 7%, rgba(199, 231, 126, 0.2), transparent 16rem),
+                var(--green);
+            box-shadow: 0 22px 54px rgba(16, 60, 52, 0.15);
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 290px;
+            height: 290px;
+            right: -110px;
+            bottom: -180px;
+            border: 1px solid rgba(255, 254, 250, 0.18);
+            border-radius: 50%;
+            box-shadow: 0 0 0 28px rgba(255, 254, 250, 0.035), 0 0 0 58px rgba(255, 254, 250, 0.025);
+            pointer-events: none;
+        }
+
+        .hero-tag {
+            background: rgba(199, 231, 126, 0.12);
+            color: var(--lime);
+            border: 1px solid rgba(199, 231, 126, 0.28);
+            padding: 7px 13px;
+            margin-bottom: 22px;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            max-width: 680px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(2.6rem, 5vw, 4.5rem);
+            font-weight: 500;
+            letter-spacing: -0.055em;
+            line-height: 1.02;
+            margin-bottom: 18px;
+        }
+
+        .hero p {
+            max-width: 590px;
+            color: rgba(255, 254, 250, 0.78);
+            font-size: 1rem;
+            margin-bottom: 28px;
+        }
+
+        .hero-actions {
+            gap: 11px;
+        }
+
+        .btn-hero-primary,
+        .btn-hero-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-size: 0.88rem;
+        }
+
+        .btn-hero-primary {
+            background: var(--lime);
+            color: var(--ink);
+        }
+
+        .btn-hero-primary:hover {
+            background: #d8f39b;
+        }
+
+        .btn-hero-secondary {
+            border-color: rgba(255, 254, 250, 0.3);
+        }
+
+        .hero-stat-box {
+            position: relative;
+            z-index: 1;
+            padding: 28px;
+            background: #fffefa;
+            color: var(--ink);
+            border: 0;
+            border-radius: 20px 20px 20px 5px;
+            box-shadow: 0 24px 60px rgba(11, 40, 35, 0.18);
+            transform: rotate(1deg);
+        }
+
+        .hero-stat-top {
+            margin-bottom: 16px;
+        }
+
+        .hero-stat-label {
+            color: var(--muted);
+            font-size: 0.7rem;
+            letter-spacing: 0.09em;
+        }
+
+        .pill-patokan {
+            background: var(--powder-blue-soft);
+            color: var(--green);
+            border: 0;
+            padding: 5px 10px;
+        }
+
+        .hero-price-big {
+            color: var(--green);
+            font-size: clamp(1.7rem, 3vw, 2.45rem);
+            letter-spacing: -0.055em;
+        }
+
+        .hero-price-sub {
+            color: var(--muted);
+        }
+
+        .minmax-item {
+            background: var(--paper);
+            border: 0;
+            border-radius: 10px;
+        }
+
+        .minmax-item span {
+            color: var(--muted);
+        }
+
+        .minmax-item strong {
+            color: var(--ink);
+        }
+
+        .kpi-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0;
+            margin: 0 0 24px;
+            padding: 10px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .kpi-card {
+            position: relative;
+            padding: 16px 22px;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+        }
+
+        .kpi-card + .kpi-card {
+            border-left: 1px solid var(--border);
+        }
+
+        .kpi-title {
+            color: var(--muted);
+            font-size: 0.67rem;
+            letter-spacing: 0.1em;
+        }
+
+        .kpi-value {
+            color: var(--green);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(1.2rem, 2vw, 1.7rem);
+            letter-spacing: -0.04em;
+            line-height: 1.25;
+            margin: 7px 0 4px;
+        }
+
+        .kpi-desc {
+            font-size: 0.75rem;
+        }
+
+        .feature-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 13px;
+            margin: 0 0 42px;
+        }
+
+        .feature-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            min-height: 106px;
+            padding: 19px;
+            background: rgba(255, 254, 250, 0.75);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .feature-icon {
+            display: grid;
+            place-items: center;
+            flex: 0 0 36px;
+            width: 36px;
+            height: 36px;
+            background: var(--powder-blue-soft);
+            color: var(--green);
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .feature-card h3 {
+            margin: 1px 0 3px;
+            font-size: 0.88rem;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            font-size: 0.76rem;
+            line-height: 1.5;
+        }
+
+        .section-block {
+            padding: clamp(22px, 3.2vw, 40px);
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            border: 1px solid rgba(25, 43, 38, 0.08);
+            border-radius: 20px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .section-header {
+            align-items: flex-end;
+            margin-bottom: 25px;
+        }
+
+        .section-eyebrow {
+            color: var(--coral);
+            font-size: 0.68rem;
+            letter-spacing: 0.12em;
+            margin-bottom: 6px;
+        }
+
+        .section-header h2 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(1.65rem, 3vw, 2.25rem);
+            font-weight: 500;
+            letter-spacing: -0.045em;
+            line-height: 1.15;
+        }
+
+        .section-header p {
+            max-width: 650px;
+            margin-top: 7px;
+            font-size: 0.88rem;
+        }
+
+        .calc-grid {
+            gap: 22px;
+            align-items: start;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            font-size: 0.82rem;
+        }
+
+        .form-control {
+            min-height: 47px;
+            padding: 11px 13px;
+            border-color: #d8dfd7;
+            border-radius: 9px;
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(23, 78, 67, 0.12);
+        }
+
+        .form-hint {
+            font-size: 0.73rem;
+        }
+
+        .btn-primary {
+            min-height: 48px;
+            background: var(--green);
+            border-radius: 9px;
+        }
+
+        .btn-primary:hover {
+            background: var(--burgundy-dark);
+        }
+
+        .btn-danger-sm {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #f1d0c9;
+            padding: 9px 13px;
+            border-radius: 9px;
+        }
+
+        .btn-danger-sm:hover {
+            background: #f9ded8;
+            color: var(--danger);
+        }
+
+        .result-panel {
+            min-width: 0;
+        }
+
+        .calculator-frame {
+            background: var(--paper);
+            border-color: var(--border);
+            border-radius: 15px;
+        }
+
+        .calc-frame-title {
+            color: var(--green);
+        }
+
+        .simulation-frame-header p {
+            color: var(--muted);
+        }
+
+        .simulation-analysis-item p,
+        .simulation-empty {
+            color: var(--muted);
+        }
+
+        .simulation-analysis-item {
+            border-color: var(--border);
+        }
+
+        .result-price-card {
+            padding: 24px 18px;
+            background: var(--green);
+            border: 0;
+            border-radius: 13px 13px 13px 4px;
+        }
+
+        .result-price-card .lbl {
+            color: var(--lime);
+            font-size: 0.7rem;
+            letter-spacing: 0.09em;
+        }
+
+        .result-price-card .val {
+            color: #fffefa;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            letter-spacing: -0.04em;
+        }
+
+        .result-meta {
+            color: rgba(255, 254, 250, 0.75);
+        }
+
+        .badge-segmen {
+            background: var(--lime);
+            color: var(--ink);
+            padding: 6px 12px;
+        }
+
+        .ai-box {
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--coral);
+            border-radius: 11px;
+            padding: 17px;
+        }
+
+        .ai-box-title {
+            color: var(--green);
+        }
+
+        .ai-provider-pill {
+            background: var(--powder-blue-soft);
+            color: var(--green);
+            border-color: #d6e6c1;
+        }
+
+        .alert-error {
+            background: var(--danger-soft);
+            border-radius: 10px;
+        }
+
+        .charts-grid {
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+            gap: 14px;
+        }
+
+        .chart-card {
+            padding: 20px;
+            border-color: var(--border);
+            border-radius: 14px;
+            background: #fffefa;
+        }
+
+        .chart-card h3 {
+            font-size: 0.88rem;
+        }
+
+        .table-wrap {
+            max-height: 390px;
+            border-color: var(--border);
+            border-radius: 11px;
+        }
+
+        table {
+            font-size: 0.82rem;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+        }
+
+        th {
+            background: #edf2eb;
+            color: var(--green);
+            font-size: 0.68rem;
+            letter-spacing: 0.06em;
+        }
+
+        .pill-ac {
+            background: var(--powder-blue-soft);
+            color: var(--green);
+            border-color: #d6e6c1;
+        }
+
+        .pill-nonac {
+            background: var(--dusty-rose-soft);
+            color: #994d36;
+            border-color: #f0d2c5;
+        }
+
+        .model-grid {
+            gap: 13px;
+        }
+
+        .info-box {
+            padding: 21px;
+            background: #f8f8f3;
+            border-color: var(--border);
+            border-radius: 13px;
+        }
+
+        .info-box h4 {
+            color: var(--green);
+            font-size: 0.9rem;
+        }
+
+        .info-box ul {
+            font-size: 0.8rem;
+        }
+
+        footer {
+            margin-top: 38px;
+            padding: 28px 16px 0;
+            border-top: 1px solid var(--border);
+            font-size: 0.78rem;
+        }
+
+        footer strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--green);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.15rem;
+        }
+
+        @media (max-width: 980px) {
+            .navbar {
+                padding-inline: 20px;
+            }
+
+            .nav-inner {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 12px;
+            }
+
+            .nav-pills {
+                order: 3;
+                width: 100%;
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 2px;
+            }
+
+            .nav-badge {
+                margin-left: auto;
+            }
+
+            .container {
+                padding-inline: 20px;
+            }
+        }
+
+        @media (max-width: 840px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .hero-stat-box {
+                max-width: 520px;
+                transform: none;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .kpi-card:nth-child(3) {
+                border-left: 0;
+            }
+
+            .kpi-card:nth-child(n + 3) {
+                border-top: 1px solid var(--border);
+            }
+
+            .calc-grid,
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 11px 14px;
+            }
+
+            .brand::before {
+                width: 38px;
+                height: 38px;
+            }
+
+            .brand-title {
+                font-size: 1.15rem;
+            }
+
+            .brand-sub {
+                max-width: 205px;
+                font-size: 0.62rem;
+            }
+
+            .nav-badge {
+                font-size: 0;
+                gap: 0;
+                padding: 9px;
+            }
+
+            .nav-badge .dot-live {
+                width: 9px;
+                height: 9px;
+            }
+
+            .nav-pills a,
+            .nav-btn-ai {
+                padding: 8px 10px;
+                font-size: 0.76rem;
+            }
+
+            .container {
+                padding: 22px 14px 42px;
+            }
+
+            .hero {
+                min-height: unset;
+                padding: 28px 22px;
+                border-radius: 20px;
+            }
+
+            .hero::after {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: clamp(2.45rem, 12vw, 3.5rem);
+            }
+
+            .hero p {
+                font-size: 0.91rem;
+            }
+
+            .hero-actions {
+                align-items: stretch;
+            }
+
+            .btn-hero-primary,
+            .btn-hero-secondary {
+                flex: 1 1 100%;
+            }
+
+            .hero-stat-box {
+                padding: 21px;
+            }
+
+            .hero-price-big {
+                font-size: 1.85rem;
+            }
+
+            .kpi-card {
+                padding: 13px 12px;
+            }
+
+            .kpi-value {
+                font-size: 1.22rem;
+                overflow-wrap: anywhere;
+            }
+
+            .kpi-desc {
+                font-size: 0.7rem;
+            }
+
+            .feature-strip {
+                grid-template-columns: 1fr;
+                gap: 9px;
+                margin-bottom: 28px;
+            }
+
+            .feature-card {
+                min-height: 0;
+                padding: 14px;
+            }
+
+            .section-block {
+                padding: 20px 15px;
+                border-radius: 16px;
+            }
+
+            .section-header {
+                align-items: flex-start;
+            }
+
+            .calculator-frame {
+                padding: 17px 14px;
+            }
+
+            .result-price-card .val {
+                font-size: 2rem;
+            }
+
+            .table-wrap {
+                max-height: 340px;
+            }
+
+            table {
+                min-width: 640px;
+            }
+
+            .info-box {
+                padding: 16px;
+            }
+
+            .info-box table {
+                min-width: 0;
+                table-layout: fixed;
+                font-size: 0.68rem;
+            }
+
+            .info-box th,
+            .info-box td {
+                padding: 8px 5px;
+                overflow-wrap: anywhere;
+            }
+
+            .ai-popover {
+                position: fixed;
+                top: 118px;
+                left: 14px;
+                right: 14px;
+                width: auto;
+                max-height: calc(100vh - 140px);
+                overflow-y: auto;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <div class="brand">
+                <span class="brand-title">IniKos</span>
+                <span class="brand-sub">Temukan kisaran kos yang pas di Madiun<br>Naufal Gavin Nadhif Annafi / NIM 253307050</span>
+            </div>
+
+            <div class="nav-pills">
+                <a href="#beranda" class="active">Beranda</a>
+                <a href="#kalkulator">Kalkulator</a>
+                <a href="#grafik">Grafik Tarif</a>
+                <a href="#riwayat">Riwayat</a>
+                <a href="#infomodel">Metode & Data</a>
+
+                <div class="ai-dropdown-wrapper">
+                    <button type="button" class="nav-btn-ai" id="btnToggleAi">API AI ▾</button>
+                    <div class="ai-popover" id="aiPopover">
+                        <h4>Pengaturan API AI</h4>
+                        <p>Pilih provider analisis kewajaran tarif kos (Lokal Bawaan tanpa key, atau Groq / Gemini).</p>
+                        <form method="POST" action="#kalkulator" class="keep-scroll-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="aksi" value="simpan_ai">
+
+                            <div class="form-group">
+                                <label for="ai_provider">Provider AI</label>
+                                <select id="ai_provider" name="ai_provider" class="form-control">
+                                    <option value="lokal" {% if ai_provider == "lokal" %}selected{% endif %}>Analisis Lokal Bawaan (Otomatis)</option>
+                                    <option value="groq" {% if ai_provider == "groq" %}selected{% endif %}>Groq (GPT OSS 20B)</option>
+                                    <option value="gemini" {% if ai_provider == "gemini" %}selected{% endif %}>Google Gemini (2.5 Flash)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ai_api_key">API Key (Opsional jika Lokal)</label>
+                                <input
+                                    type="password"
+                                    id="ai_api_key"
+                                    name="ai_api_key"
+                                    class="form-control"
+                                    placeholder="{% if has_api_key %}Key sesi tersimpan (isi untuk ganti){% else %}Masukkan API key Groq / Gemini{% endif %}"
+                                >
+                                <small class="form-hint">Key disimpan sementara di session browser lokal dan otomatis hilang saat browser ditutup.</small>
+                            </div>
+
+                            <button type="submit" class="btn-primary">Simpan Pengaturan AI</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-badge">
+                <span class="dot-live"></span>
+                Analisis {{ ai_provider|upper }}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        {% if pesan_ai_setting %}
+            <div class="alert-toast">{{ pesan_ai_setting }}</div>
+        {% endif %}
+
+        <!-- Hero Section -->
+        <section id="beranda" class="hero">
+            <div>
+                <span class="hero-tag">Pasar kos Madiun <span aria-hidden="true">/</span> {{ info_model.jumlah_data }} data referensi</span>
+                <h1>Temukan kos yang pas, dengan harga yang masuk akal.</h1>
+                <p>Bandingkan perkiraan tarif berdasarkan jarak ke kampus, fasilitas, dan rating. IniKos membantu kamu membaca harga pasar sebelum menentukan pilihan.</p>
+                <div class="hero-actions">
+                    <a href="#kalkulator" class="btn-hero-primary">Cek estimasi harga <span aria-hidden="true">↗</span></a>
+                    <a href="#grafik" class="btn-hero-secondary">Jelajahi data pasar</a>
+                </div>
+            </div>
+
+            <div class="hero-stat-box">
+                <div class="hero-stat-top">
+                    <span class="hero-stat-label">Rata-rata harga kos</span>
+                    <span class="pill-patokan">Per bulan</span>
+                </div>
+                <div class="hero-price-big">{{ info_model.rata_harga_rupiah }}</div>
+                <div class="hero-price-sub">Acuan pasar di sekitar kampus Madiun</div>
+
+                <div class="hero-minmax">
+                    <div class="minmax-item">
+                        <span>Tarif Terendah</span>
+                        <strong>{{ info_model.tarif_min_rupiah }}</strong>
+                    </div>
+                    <div class="minmax-item">
+                        <span>Tarif Tertinggi</span>
+                        <strong>{{ info_model.tarif_max_rupiah }}</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 KPI Summary Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">DATA REFERENSI</div>
+                <div class="kpi-value">{{ info_model.jumlah_data }} kos</div>
+                <div class="kpi-desc">Diamati di area Madiun</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">HARGA RATA-RATA</div>
+                <div class="kpi-value">{{ info_model.rata_harga_rupiah }}</div>
+                <div class="kpi-desc">Acuan bulanan dataset</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">BANDINGKAN FASILITAS</div>
+                <div class="kpi-value">AC vs Non-AC</div>
+                <div class="kpi-desc">Terlihat interaktif pada grafik</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">TOTAL PENGECEKAN</div>
+                <div class="kpi-value">{{ total_dicek }}x</div>
+                <div class="kpi-desc">Tersimpan di database SQLite</div>
+            </div>
+        </div>
+
+        <div class="feature-strip" aria-label="Keunggulan IniKos">
+            <article class="feature-card">
+                <span class="feature-icon" aria-hidden="true">01</span>
+                <div>
+                    <h3>Estimasi berbasis data</h3>
+                    <p>Gunakan pola harga dari kos-kos di sekitar kampus Madiun.</p>
+                </div>
+            </article>
+            <article class="feature-card">
+                <span class="feature-icon" aria-hidden="true">02</span>
+                <div>
+                    <h3>Faktor yang mudah dipahami</h3>
+                    <p>Lihat kaitan jarak, rating, dan fasilitas AC dengan tarif.</p>
+                </div>
+            </article>
+            <article class="feature-card">
+                <span class="feature-icon" aria-hidden="true">03</span>
+                <div>
+                    <h3>Insight sebelum memilih</h3>
+                    <p>Dapatkan ulasan lokal atau analisis dari provider AI pilihan.</p>
+                </div>
+            </article>
+        </div>
+
+        <!-- Section 1: Kalkulator & Analisis AI -->
+        <section id="kalkulator" class="section-block">
+            <div class="section-header">
+                <div>
+                    <div class="section-eyebrow">01 / PENCARIAN CERDAS</div>
+                    <h2>Berapa harga wajar untuk kos ini?</h2>
+                    <p>Sesuaikan detail kamar untuk melihat estimasi bulanan dan konteks harga pasarnya.</p>
+                </div>
+            </div>
+
+            <div class="calc-grid">
+                <div class="calculator-frame">
+                    <h3 class="calc-frame-title">Setting Data</h3>
+                    <form method="POST" action="#kalkulator" class="keep-scroll-form calc-settings-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="aksi" value="hitung">
+
+                        <div class="form-group">
+                            <label for="jarak_km">Jarak dari kampus (km)</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="0.1"
+                                max="25.0"
+                                id="jarak_km"
+                                name="jarak_km"
+                                class="form-control"
+                                value="{{ form_data.jarak_km }}"
+                                required
+                            >
+                            <small class="form-hint">Rentang normal dataset 0,6 – 5,0 km (mendukung uji batas hingga 25 km).</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ac">Pendingin ruangan</label>
+                            <select id="ac" name="ac" class="form-control" required>
+                                <option value="ya" {% if form_data.ac == "ya" %}selected{% endif %}>Ya (Tersedia AC)</option>
+                                <option value="tidak" {% if form_data.ac == "tidak" %}selected{% endif %}>Tidak (Non-AC)</option>
+                            </select>
+                            <small class="form-hint">Ketersediaan pendingin ruangan di kamar kos.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rating">Rating kos (skala 1,0–5,0)</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="1.0"
+                                max="5.0"
+                                id="rating"
+                                name="rating"
+                                class="form-control"
+                                value="{{ form_data.rating }}"
+                                required
+                            >
+                            <small class="form-hint">Penilaian kenyamanan & kebersihan kamar (contoh: 4.2).</small>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Lihat estimasi & analisis</button>
+                    </form>
+                </div>
+
+                <div class="result-panel calculator-frame">
+                    <h3 class="calc-frame-title">Hasil Kalkulasi</h3>
+                    {% if pesan_error %}
+                        <div class="alert-error">
+                            <strong>Input Tidak Valid:</strong> {{ pesan_error }}
+                        </div>
+                    {% endif %}
+
+                    {% if hasil_prediksi %}
+                        <div class="result-price-card">
+                            <div class="lbl">Perkiraan sewa per bulan</div>
+                            <div class="val">{{ hasil_prediksi.harga_rupiah }}</div>
+                            <div class="result-meta">
+                                ({{ hasil_prediksi.jarak_km }} km • {{ hasil_prediksi.ac_teks }} • Rating {{ hasil_prediksi.rating }}/5,0)
+                            </div>
+                            <span class="badge-segmen">Segmen Pasar: {{ hasil_prediksi.kategori }}</span>
+                        </div>
+
+                        <div class="ai-box">
+                            <div class="ai-box-header">
+                                <span class="ai-box-title">Ulasan Kewajaran Tarif</span>
+                                <span class="ai-provider-pill">{{ hasil_prediksi.provider_ai }}</span>
+                            </div>
+                            <p>{{ hasil_prediksi.analisis_ai }}</p>
+                        </div>
+                    {% else %}
+                        <div style="text-align: center; padding: 38px 16px; color: var(--text-muted);">
+                            <p style="font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Mulai dengan detail kamar</p>
+                            <p style="font-size: 0.88rem;">Isi jarak, fasilitas, dan rating di samping. IniKos akan menampilkan estimasi dan ringkasan kewajaran tarif. Atur provider analisis melalui menu di bagian atas.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <section class="calculator-frame simulation-frame">
+                    <div class="simulation-frame-header">
+                        <h3 class="calc-frame-title">Analisis Simulasi</h3>
+                        <p>Perubahan estimasi harga berdasarkan jarak dan parameter kos yang dipilih.</p>
+                    </div>
+                    {% if hasil_prediksi %}
+                        <div class="simulation-grid">
+                            <div class="chart-card">
+                                <h3>Grafik Simulasi Perubahan Harga Kos</h3>
+                                <div class="simulation-chart-wrap">
+                                    <canvas id="simulasiHargaChart" role="img" aria-label="Grafik simulasi estimasi harga kos berdasarkan jarak ke kampus"></canvas>
+                                </div>
+                            </div>
+                            <div class="simulation-analysis" aria-live="polite">
+                                <h4>Analisis Grafik</h4>
+                                <div class="simulation-analysis-item">
+                                    <strong>Tren</strong>
+                                    <p id="simulationTrend"></p>
+                                </div>
+                                <div class="simulation-analysis-item">
+                                    <strong>Perubahan Harga</strong>
+                                    <p id="simulationPriceChange"></p>
+                                </div>
+                                <div class="simulation-analysis-item">
+                                    <strong>Kesimpulan</strong>
+                                    <p id="simulationConclusion"></p>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="simulation-empty">Grafik dan analisis akan tampil setelah kalkulasi berhasil.</p>
+                    {% endif %}
+                </section>
+            </div>
+        </section>
+
+        <!-- Section 2: Grafik Tarif Interaktif Web (Chart.js) -->
+        <section id="grafik" class="section-block">
+            <div class="section-header">
+                <div>
+                    <div class="section-eyebrow">02 / MEMBACA PASAR</div>
+                    <h2>Jelajahi pola harga kos Madiun</h2>
+                    <p>Bandingkan sebaran harga menurut jarak serta rata-rata tarif kamar dengan dan tanpa AC.</p>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Sebaran Jarak ke Kampus vs Tarif Sewa</h3>
+                    <canvas id="scatterTarifChart" height="220"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Rata-Rata Tarif: Non-AC vs Ber-AC</h3>
+                    <canvas id="barAcChart" height="220"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Riwayat Pencarian / Analisa -->
+        <section id="riwayat" class="section-block">
+            <div class="section-header">
+                <div>
+                    <div class="section-eyebrow">03 / TERSIMPAN OTOMATIS</div>
+                    <h2>Riwayat pencarianmu</h2>
+                    <p>Hasil estimasi terbaru, termasuk faktor kamar dan sumber analisis.</p>
+                </div>
+
+                {% if riwayat_list %}
+                    <form method="POST" action="#riwayat" class="keep-scroll-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="aksi" value="hapus_riwayat">
+                        <button type="submit" class="btn-danger-sm">Bersihkan Riwayat</button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>Jarak</th>
+                            <th>Rating</th>
+                            <th>Fasilitas</th>
+                            <th>Hasil Estimasi</th>
+                            <th>Segmen</th>
+                            <th>Engine Analisis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in riwayat_list %}
+                            <tr>
+                                <td>{{ item.waktu }}</td>
+                                <td><strong>{{ item.jarak_km }} km</strong></td>
+                                <td>{{ item.rating }} / 5,0</td>
+                                <td>
+                                    {% if item.ac == "Ber-AC" %}
+                                        <span class="pill-ac">Ber-AC</span>
+                                    {% else %}
+                                        <span class="pill-nonac">Non-AC</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ item.estimasi_harga }}</strong></td>
+                                <td>{{ item.kategori }}</td>
+                                <td style="font-size: 0.8rem; color: var(--text-muted);">{{ item.provider_ai }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                                    Belum ada riwayat kalkulasi. Coba hitung estimasi tarif kos pada bagian Kalkulator di atas.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Info Model & Data Referensi -->
+        <section id="infomodel" class="section-block">
+            <div class="section-header">
+                <div>
+                    <div class="section-eyebrow">04 / TRANSPARANSI DATA</div>
+                    <h2>Kenali model dan data di balik estimasi</h2>
+                    <p>Detail algoritma, evaluasi, dan sampel kos yang menjadi acuan perhitungan IniKos.</p>
+                </div>
+            </div>
+
+            <div class="model-grid">
+                <div class="info-box">
+                    <h4>Teknologi & Algoritma yang Digunakan</h4>
+                    <ul>
+                        <li><strong>Model Utama:</strong> {{ info_model.nama_model }} (Scikit-Learn) yang dibekukan ke <code>model_kos.joblib</code>.</li>
+                        <li><strong>Fitur Input (X):</strong> Jarak ke kampus (<code>jarak_km</code>), penilaian penghuni (<code>rating</code>), dan fasilitas AC terenkode biner (<code>ac_num</code>).</li>
+                        <li><strong>Backend & Database:</strong> Python Django 6 + SQLite (<code>RiwayatPrediksi</code>) untuk penyimpanan riwayat pencarian.</li>
+                        <li><strong>Layer Analisis AI:</strong> Engine Analisis Lokal Bawaan (berbasis statistik pasar Madiun) serta integrasi opsional API <strong>Groq (GPT OSS 20B)</strong> dan <strong>Google Gemini (2.5 Flash)</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Evaluasi Perbandingan Model (80% Latih : 20% Uji)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Algoritma</th>
+                                <th>MAE Uji (Rb Rp)</th>
+                                <th>RMSE Uji (Rb Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>{{ info_model.nama_model }} (Aktif)</strong></td>
+                                <td>{{ info_model.perbandingan.linear_regression.mae_test }}</td>
+                                <td>{{ info_model.perbandingan.linear_regression.rmse_test }}</td>
+                            </tr>
+                            <tr>
+                                <td>Decision Tree (max_depth=3)</td>
+                                <td>{{ info_model.perbandingan.decision_tree.mae_test }}</td>
+                                <td>{{ info_model.perbandingan.decision_tree.rmse_test }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--text-main);">Sampel data referensi kos Madiun</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Kos</th>
+                            <th>Jarak ke Kampus</th>
+                            <th>Rating</th>
+                            <th>Fasilitas</th>
+                            <th>Tarif / Bulan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in dataset_list %}
+                            <tr>
+                                <td>{{ row.no }}</td>
+                                <td><strong>{{ row.nama }}</strong></td>
+                                <td>{{ row.jarak_km }} km</td>
+                                <td>{{ row.rating }} / 5,0</td>
+                                <td>
+                                    {% if row.ac == "ya" %}
+                                        <span class="pill-ac">Ber-AC</span>
+                                    {% else %}
+                                        <span class="pill-nonac">Non-AC</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ row.harga_rupiah }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <strong>IniKos</strong>
+            <span>Estimasi tarif kos di Madiun • Naufal Gavin Nadhif Annafi (NIM 253307050) • Mini Proyek Sistem Cerdas Pertemuan 14</span>
+        </footer>
+    </div>
+
+    <script>
+        // Navigasi navbar: gulir ke section yang dipilih dan perbarui menu aktif.
+        const navLinks = Array.from(document.querySelectorAll(".nav-pills a[href^='#']"));
+
+        function pindahKeSection(link) {
+            const targetId = link.getAttribute("href");
+            const target = document.querySelector(targetId);
+            if (!target) return;
+
+            navLinks.forEach(function (navLink) {
+                navLink.classList.toggle("active", navLink === link);
+            });
+
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, "", targetId);
+            }
+        }
+
+        navLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+                pindahKeSection(link);
+            });
+        });
+
+        // Tetap sinkronkan menu aktif saat pengguna menggulir sendiri.
+        const sectionTargets = navLinks
+            .map(function (link) {
+                return document.querySelector(link.getAttribute("href"));
+            })
+            .filter(Boolean);
+
+        if ("IntersectionObserver" in window) {
+            const navObserver = new IntersectionObserver(function (entries) {
+                const visibleEntry = entries
+                    .filter(function (entry) { return entry.isIntersecting; })
+                    .sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; })[0];
+
+                if (!visibleEntry) return;
+
+                navLinks.forEach(function (link) {
+                    link.classList.toggle(
+                        "active",
+                        link.getAttribute("href") === "#" + visibleEntry.target.id
+                    );
+                });
+            }, {
+                rootMargin: "-20% 0px -65% 0px",
+                threshold: [0, 0.15, 0.5]
+            });
+
+            sectionTargets.forEach(function (section) {
+                navObserver.observe(section);
+            });
+        }
+
+        // Simpan dan pulihkan posisi scroll agar tidak melompat ke atas saat submit form
+        document.querySelectorAll(".keep-scroll-form").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                sessionStorage.setItem("hitungkos_scroll_y", window.scrollY);
+            });
+        });
+
+        // Toggle popover pengaturan API AI
+        const btnToggleAi = document.getElementById("btnToggleAi");
+        const aiPopover = document.getElementById("aiPopover");
+
+        btnToggleAi.addEventListener("click", function (e) {
+            e.stopPropagation();
+            aiPopover.classList.toggle("open");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!aiPopover.contains(e.target) && e.target !== btnToggleAi) {
+                aiPopover.classList.remove("open");
+            }
+        });
+
+        // Render Grafik Interaktif Chart.js dari data kos_madiun.csv
+        const chartData = {{ chart_payload|safe }};
+
+        const acPoints = chartData.points
+            .filter(item => item.ac === "ya")
+            .map(item => ({ x: item.jarak_km, y: item.harga_ribu, nama: item.nama }));
+
+        const nonAcPoints = chartData.points
+            .filter(item => item.ac !== "ya")
+            .map(item => ({ x: item.jarak_km, y: item.harga_ribu, nama: item.nama }));
+
+        const ctxScatter = document.getElementById("scatterTarifChart").getContext("2d");
+        new Chart(ctxScatter, {
+            type: "scatter",
+            data: {
+                datasets: [
+                    {
+                        label: "Ber-AC (ya)",
+                        data: acPoints,
+                        backgroundColor: "#174e43",
+                        borderColor: "#174e43",
+                        borderWidth: 1,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: "Non-AC (tidak)",
+                        data: nonAcPoints,
+                        backgroundColor: "#d97757",
+                        borderColor: "#d97757",
+                        borderWidth: 1,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: "#192b26" }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const pt = ctx.raw;
+                                return `${pt.nama}: ${pt.x} km — Rp ${pt.y} rb/bln`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: "Jarak ke Kampus (km)", color: "#192b26" },
+                        ticks: { color: "#6a7973" },
+                        grid: { color: "#e3e7df" }
+                    },
+                    y: {
+                        title: { display: true, text: "Tarif Sewa (Ribu Rp / Bulan)", color: "#192b26" },
+                        ticks: { color: "#6a7973" },
+                        grid: { color: "#e3e7df" }
+                    }
+                }
+            }
+        });
+
+        const ctxBar = document.getElementById("barAcChart").getContext("2d");
+        new Chart(ctxBar, {
+            type: "bar",
+            data: {
+                labels: ["Non-AC (tidak)", "Ber-AC (ya)"],
+                datasets: [
+                    {
+                        label: "Rata-Rata Tarif (Ribu Rp / Bulan)",
+                        data: [chartData.rata_non_ac, chartData.rata_ac],
+                        backgroundColor: ["#d97757", "#174e43"],
+                        borderColor: ["#d97757", "#174e43"],
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        barPercentage: 0.55
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return `Rata-rata: Rp ${ctx.raw} rb/bulan`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: "#192b26" },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 1400,
+                        title: { display: true, text: "Ribu Rp / Bulan", color: "#192b26" },
+                        ticks: { color: "#6a7973" },
+                        grid: { color: "#e3e7df" }
+                    }
+                }
+            }
+        });
+
+        {% if hasil_prediksi %}
+            const simulationData = {{ hasil_prediksi.simulasi_payload|safe }};
+            const selectedDistance = {{ hasil_prediksi.jarak_km }};
+            const selectedPointIndex = simulationData.findIndex(
+                point => point.jarak_km === selectedDistance
+            );
+            const formatRupiahChart = value => new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                maximumFractionDigits: 0
+            }).format(value);
+            const formatDistanceChart = value =>
+                `${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 }).format(value)} km`;
+
+            new Chart(document.getElementById("simulasiHargaChart").getContext("2d"), {
+                type: "line",
+                data: {
+                    labels: simulationData.map(point => point.jarak_km),
+                    datasets: [
+                        {
+                            label: "Estimasi harga",
+                            data: simulationData.map(point => point.harga_rupiah),
+                            borderColor: "#174e43",
+                            backgroundColor: "rgba(23, 78, 67, 0.08)",
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: simulationData.map((point, index) =>
+                                index === selectedPointIndex ? "#c7e77e" : "#174e43"
+                            ),
+                            pointBorderColor: simulationData.map((point, index) =>
+                                index === selectedPointIndex ? "#174e43" : "#174e43"
+                            ),
+                            tension: 0.25,
+                            fill: true
+                        },
+                        {
+                            label: "Jarak pilihan Anda",
+                            data: simulationData.map((point, index) =>
+                                index === selectedPointIndex ? point.harga_rupiah : null
+                            ),
+                            showLine: false,
+                            borderColor: "#c7e77e",
+                            backgroundColor: "#c7e77e",
+                            pointBorderColor: "#174e43",
+                            pointBorderWidth: 2,
+                            pointRadius: 8,
+                            pointHoverRadius: 10
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: "index" },
+                    plugins: {
+                        legend: {
+                            labels: { color: "#192b26" }
+                        },
+                        tooltip: {
+                            filter: item => item.raw !== null,
+                            callbacks: {
+                                title: items => `Jarak: ${items[0].label} km`,
+                                label: item => `${item.dataset.label}: ${formatRupiahChart(item.raw)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: "Jarak ke Kampus (km)", color: "#192b26" },
+                            ticks: {
+                                color: "#6a7973",
+                                callback: value => `${simulationData[value].jarak_km} km`
+                            },
+                            grid: { color: "#e3e7df" }
+                        },
+                        y: {
+                            title: { display: true, text: "Estimasi Harga per Bulan", color: "#192b26" },
+                            ticks: {
+                                color: "#6a7973",
+                                callback: value => formatRupiahChart(value)
+                            },
+                            grid: { color: "#e3e7df" }
+                        }
+                    }
+                }
+            });
+
+            const startPoint = simulationData[0];
+            const endPoint = simulationData[simulationData.length - 1];
+            const priceChange = endPoint.harga_rupiah - startPoint.harga_rupiah;
+            const averageSimulationPrice = simulationData.reduce(
+                (total, point) => total + point.harga_rupiah, 0
+            ) / simulationData.length;
+            const stabilityThreshold = averageSimulationPrice * 0.01;
+            const trendPercent = averageSimulationPrice
+                ? Math.abs(priceChange) / averageSimulationPrice * 100
+                : 0;
+            let trendDescription;
+            let conclusion;
+
+            if (Math.abs(priceChange) <= stabilityThreshold) {
+                trendDescription =
+                    `Relatif Stabil — estimasi dari ${formatDistanceChart(startPoint.jarak_km)} hingga ${formatDistanceChart(endPoint.jarak_km)} berubah ${trendPercent.toFixed(1)}% dari rata-rata harga simulasi.`;
+                conclusion =
+                    "Pada rentang jarak simulasi ini, model memprediksi estimasi harga yang relatif stabil.";
+            } else if (priceChange < 0) {
+                trendDescription =
+                    `Tren Menurun — estimasi turun dari ${formatRupiahChart(startPoint.harga_rupiah)} pada ${formatDistanceChart(startPoint.jarak_km)} menjadi ${formatRupiahChart(endPoint.harga_rupiah)} pada ${formatDistanceChart(endPoint.jarak_km)}.`;
+                conclusion =
+                    "Pada rentang jarak simulasi ini, model memprediksi harga semakin rendah saat jarak kos bertambah.";
+            } else {
+                trendDescription =
+                    `Tren Meningkat — estimasi naik dari ${formatRupiahChart(startPoint.harga_rupiah)} pada ${formatDistanceChart(startPoint.jarak_km)} menjadi ${formatRupiahChart(endPoint.harga_rupiah)} pada ${formatDistanceChart(endPoint.jarak_km)}.`;
+                conclusion =
+                    "Pada rentang jarak simulasi ini, model memprediksi harga semakin tinggi saat jarak kos bertambah.";
+            }
+
+            const priceChangeDescription = priceChange < 0
+                ? `Turun sebesar ${formatRupiahChart(Math.abs(priceChange))}`
+                : priceChange > 0
+                    ? `Naik sebesar ${formatRupiahChart(priceChange)}`
+                    : "Tidak berubah";
+            document.getElementById("simulationTrend").textContent = trendDescription;
+            document.getElementById("simulationPriceChange").textContent =
+                `${priceChangeDescription}, dari ${formatRupiahChart(startPoint.harga_rupiah)} (${formatDistanceChart(startPoint.jarak_km)}) menjadi ${formatRupiahChart(endPoint.harga_rupiah)} (${formatDistanceChart(endPoint.jarak_km)}).`;
+            document.getElementById("simulationConclusion").textContent = conclusion;
+        {% endif %}
+
+        // Kembalikan posisi scroll setelah Chart.js selesai dirender
+        window.addEventListener("load", function () {
+            const savedScrollY = sessionStorage.getItem("hitungkos_scroll_y");
+            if (savedScrollY !== null) {
+                window.scrollTo({ top: parseInt(savedScrollY, 10), behavior: "instant" });
+                sessionStorage.removeItem("hitungkos_scroll_y");
+            }
+        });
+    </script>
+</body>
+</html>
